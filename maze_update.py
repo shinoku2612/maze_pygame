@@ -1,3 +1,4 @@
+import sys
 import random
 import pygame
 import json
@@ -13,25 +14,19 @@ def load_text_file(file_name):
     return data
 
 
-def update_JSON_file(file_name, new_JSON):
-    file = open(file_name + '.json', 'w')
-    file.write(new_JSON)
-    file.close()
-
-
 def play():
     ACTION_LIST = load_text_file('action')
+    MAZE = load_JSON_file('maze_metadata')
+
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
         for action in ACTION_LIST:
-            maze = load_JSON_file('maze_metadata')
-            pygame.time.wait(100)
-            display(WINDOW, maze)
 
-            WIDTH, HEIGHT, OBSTACLES, BOT, COIN = maze.values()
+            BOT = MAZE['bot']
+            COIN = MAZE['coin']
             action = action.strip()
             if action == "down":
                 BOT[0] += 1
@@ -44,29 +39,11 @@ def play():
             else:
                 continue
 
+            pygame.time.wait(100)
+            display(WINDOW, MAZE)
             if BOT == COIN:
-
-                # Get new random position of coin
-                NEW_COIN_Y = random.randint(0, HEIGHT)
-                NEW_COIN_X = random.randint(0, WIDTH)
-
-                # If this coordinate is in obstacle list, do it again
-                while ([NEW_COIN_Y, NEW_COIN_X] in maze['obstacles']):
-                    NEW_COIN_Y = random.randint(0, HEIGHT)
-                    NEW_COIN_X = random.randint(0, WIDTH)
-
-                COIN = [NEW_COIN_Y, NEW_COIN_X]
-                pygame.time.delay(5000)
-
-            NEW_MAZE = {
-                "width": WIDTH,
-                "height": HEIGHT,
-                "obstacles": OBSTACLES,
-                "bot": BOT,
-                "coin": COIN
-            }
-            json_maze = json.dumps(NEW_MAZE)
-            update_JSON_file('maze_metadata', json_maze)
+                pygame.time.delay(3000)
+                running = False
 
 
 if __name__ == "__main__":
